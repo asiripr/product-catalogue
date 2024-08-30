@@ -5,7 +5,7 @@ import java.sql.Date;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="products")
+@Table(name="juices")
 public class MyProduct {
 	
 //	our primary key
