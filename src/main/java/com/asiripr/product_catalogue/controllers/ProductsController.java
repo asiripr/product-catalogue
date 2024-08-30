@@ -3,6 +3,7 @@ package com.asiripr.product_catalogue.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,8 +23,8 @@ public class ProductsController {
 	
 	@GetMapping({"","/"})
 	public String showProductList(Model model) {
-		List<MyProduct> products = repo.findAll();
+		List<MyProduct> products = repo.findAll(Sort.by(Sort.Direction.DESC, "id"));
 		model.addAttribute("products", products);
-		return "prducts/index";
+		return "products/index";
 	}
 }
