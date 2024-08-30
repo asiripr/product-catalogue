@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.asiripr.product_catalogue.models.MyProduct;
+import com.asiripr.product_catalogue.models.MyProductDTO;
 import com.asiripr.product_catalogue.services.ProductRepository;
 
 
@@ -26,5 +27,12 @@ public class ProductsController {
 		List<MyProduct> products = repo.findAll(Sort.by(Sort.Direction.DESC, "id"));
 		model.addAttribute("products", products);
 		return "products/index";
+	}
+	
+	@GetMapping("/create")
+	public String showCreatePage (Model model) {
+		MyProductDTO productDTO = new MyProductDTO();
+		model.addAttribute("productDTO", productDTO);
+		return "products/CreateProduct";
 	}
 }
