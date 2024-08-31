@@ -8,25 +8,24 @@ import jakarta.validation.constraints.*;
 // Used to transfer data between different layers of an application.
 
 public class MyProductDTO {
-	@NotEmpty(message="The name is required")
+	@NotEmpty(message = "The name is required")
 	private String name;
-	
-	@NotEmpty(message="The brand is required")
+
+	@NotEmpty(message = "The brand is required")
 	private String brand;
-	
-	@NotEmpty(message="The price is required")
+
+	@NotEmpty(message = "The price is required")
 	private String category;
-	
+
 	@Min(0)
 	private double price;
-	
-	@Size(min = 10, message="The description should be at least 10 characters")
-	@Size(max = 2000, message="The description cannot exceed 2000 characters")
-	private String discription;
-	
+
+	@Size(min = 0, message = "The description should be at least 10 characters")
+	@Size(max = 2000, message = "The description cannot exceed 2000 characters")
+	private String description;
+
 	private MultipartFile imageFile;
-	
-	
+
 //	------ GETTERS AND SETTERS ------
 
 	public String getName() {
@@ -61,12 +60,12 @@ public class MyProductDTO {
 		this.price = price;
 	}
 
-	public String getDiscription() {
-		return discription;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setDiscription(String discription) {
-		this.discription = discription;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public MultipartFile getImageFile() {
@@ -76,7 +75,7 @@ public class MyProductDTO {
 	public void setImageFile(MultipartFile imageFile) {
 		this.imageFile = imageFile;
 	}
-	
+
 //	------  ------  ------  ---------
 
 }

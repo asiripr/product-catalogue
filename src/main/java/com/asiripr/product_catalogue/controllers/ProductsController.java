@@ -17,7 +17,6 @@ import com.asiripr.product_catalogue.services.ProductRepository;
 @Controller
 @RequestMapping("/products")
 public class ProductsController {
-
 	
 	@Autowired
 	private ProductRepository repo;
@@ -33,6 +32,6 @@ public class ProductsController {
 	public String showCreatePage (Model model) {
 		MyProductDTO productDTO = new MyProductDTO();
 		model.addAttribute("productDTO", productDTO);
-		return "products/CreateProduct";
+		return "products/mytest";
 	}
 }
