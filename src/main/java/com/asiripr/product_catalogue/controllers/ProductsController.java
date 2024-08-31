@@ -47,78 +47,107 @@ public class ProductsController {
 	}
 
 	@PostMapping("/products")
-	public String submitProduct(@Valid @ModelAttribute("productDTO") MyProductDTO productDTO,
-	                            BindingResult result,
-	                            RedirectAttributes redirectAttributes) {
+	public String submitProduct(@Valid @ModelAttribute("productDTO") MyProductDTO productDTO, BindingResult result,
+			RedirectAttributes redirectAttributes) {
 		if (productDTO.getImageFile().isEmpty()) {
 			result.addError(new FieldError("productDTO", "imageFile", "The image file is reqired!"));
 		}
 		if (result.hasErrors()) {
 			return "products/CreateProduct";
 		}
-        redirectAttributes.addFlashAttribute("message", "Product submitted successfully!");
+		redirectAttributes.addFlashAttribute("message", "Product submitted successfully!");
 		return "redirect:/products";
 	}
+
 	@GetMapping("/edit")
 	public String showEditPage(Model model, @RequestParam int id) {
 		try {
 			MyProduct product = repo.findById(id).get();
-			model.addAttribute("product",product);
-			
+			model.addAttribute("product", product);
+
 			MyProductDTO productDTO = new MyProductDTO();
 			productDTO.setName(product.getName());
 			productDTO.setBrand(product.getBrand());
 			productDTO.setCategory(product.getCategory());
 			productDTO.setPrice(product.getPrice());
 			productDTO.setDescription(product.getDescription());
-			
+
 			model.addAttribute("productDTO", productDTO);
 		} catch (Exception e) {
-			System.out.println("Exception: "+e.getMessage());
+			System.out.println("Exception: " + e.getMessage());
 			return "redirect:/products";
 		}
 		return "products/EditProduct";
 	}
-	
+
 	@PostMapping("/edit")
-	public String updateProduct(Model model, @RequestParam int id, @Valid @ModelAttribute MyProductDTO productDTO, BindingResult result) {
+	public String updateProduct(Model model, @RequestParam int id, @Valid @ModelAttribute MyProductDTO productDTO,
+			BindingResult result) {
 		try {
 			MyProduct product = repo.findById(id).get();
 			model.addAttribute("product", product);
-			
+
 			if (result.hasErrors()) {
 				return "products/EditProducts";
 			}
-			
+
 			if (!productDTO.getImageFile().isEmpty()) {
-				//delete old image
+				// delete old image
 				String uploadDir = "public/images/";
 				Path oldImagePath = Paths.get(uploadDir + product.getImageFileName());
-			
+
 				try {
 					Files.delete(oldImagePath);
 				} catch (Exception e) {
-					System.out.println("Exception: "+e.getMessage());
+					System.out.println("Exception: " + e.getMessage());
 				}
-				
+
 				// save new image file
 				MultipartFile image = productDTO.getImageFile();
 				Date createdAt = new Date(id);
 				String storageFileName = createdAt.getTime() + "_" + image.getOriginalFilename();
-				
-				try (InputStream inputStream = image.getInputStream()){
+
+				try (InputStream inputStream = image.getInputStream()) {
 					Files.copy(inputStream, Paths.get(uploadDir + storageFileName),
-						StandardCopyOption.REPLACE_EXISTING);
-					}
-					product.setImageFileName(storageFileName);}
-				 
+							StandardCopyOption.REPLACE_EXISTING);
+				}
+				product.setImageFileName(storageFileName);
+			}
 			
+			product.setName(productDTO.getName());
+			product.setBrand(productDTO.getBrand());
+			product.setCategory(productDTO.getCategory());
+			product.setPrice(productDTO.getPrice());
+			product.setDescription(productDTO.getDescription());
 			
+			repo.save(product);
+
+		} catch (Exception e) {
+			System.out.println("Exception: " + e.getMessage());
+		}
+
+		return "redirect:/products";
+	}
+	@GetMapping("/delete")
+	public String deleteProduct(@RequestParam int id){
+		try {
+			MyProduct product = repo.findById(id).get();
+			
+			//delete product image
+			Path imagePath = Paths.get("public/image" + product.getImageFileName());
+			
+			try {
+				Files.delete(imagePath);
+			} catch (Exception e) {
+				System.out.println("Exception: " + e.getMessage());
+			}
+			
+			//delete the product
+			repo.delete(product);
 			
 		} catch (Exception e) {
-			System.out.println("Exception: "+e.getMessage());
+			System.out.println("Exception: " + e.getMessage());
 		}
-		
 		return "redirect:/products";
 	}
 }
