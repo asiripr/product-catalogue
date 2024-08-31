@@ -6,32 +6,73 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.asiripr.product_catalogue.models.MyProduct;
 import com.asiripr.product_catalogue.models.MyProductDTO;
 import com.asiripr.product_catalogue.services.ProductRepository;
 
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/products")
 public class ProductsController {
-	
+
 	@Autowired
 	private ProductRepository repo;
-	
-	@GetMapping({"","/"})
+
+	@GetMapping({ "", "/" })
 	public String showProductList(Model model) {
 		List<MyProduct> products = repo.findAll(Sort.by(Sort.Direction.DESC, "id"));
 		model.addAttribute("products", products);
 		return "products/index";
 	}
-	
+
 	@GetMapping("/create")
-	public String showCreatePage (Model model) {
+	public String showCreatePage(Model model) {
 		MyProductDTO productDTO = new MyProductDTO();
 		model.addAttribute("productDTO", productDTO);
-		return "products/mytest";
+		return "products/CreateProduct";
+	}
+
+	@PostMapping("/products")
+	public String submitProduct(@Valid @ModelAttribute("productDTO") MyProductDTO productDTO,
+	                            BindingResult result,
+	                            RedirectAttributes redirectAttributes) {
+		if (productDTO.getImageFile().isEmpty()) {
+			result.addError(new FieldError("productDTO", "imageFile", "The image file is reqired!"));
+		}
+		if (result.hasErrors()) {
+			return "products/CreateProduct";
+		}
+        redirectAttributes.addFlashAttribute("message", "Product submitted successfully!");
+		return "redirect:/products";
+	}
+	@GetMapping("/edit")
+	public String showEditPage(Model model, @RequestParam int id) {
+		try {
+			MyProduct product = repo.findById(id).get();
+			model.addAttribute("product",product);
+			
+			MyProductDTO productDTO = new MyProductDTO();
+			productDTO.setName(product.getName());
+			productDTO.setBrand(product.getBrand());
+			productDTO.setCategory(product.getCategory());
+			productDTO.setPrice(product.getPrice());
+			productDTO.setDescription(product.getDescription());
+			
+			model.addAttribute("productDTO", productDTO);
+		} catch (Exception e) {
+			System.out.println("Exception: "+e.getMessage());
+			return "redirect:/products";
+		}
+		return "products/EditProduct";
 	}
 }
